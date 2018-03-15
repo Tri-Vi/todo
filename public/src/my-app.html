@@ -1,0 +1,103 @@
+<link rel="import" href="/bower_components/polymer/polymer-element.html">
+<link rel="import" href="/bower_components/app-layout/app-layout.html">
+<link rel="import" href="/bower_components/app-route/app-route.html">
+<link rel="import" href="/bower_components/app-route/app-location.html">
+<link rel="import" href="/bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="/bower_components/paper-item/paper-item.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="/bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="/bower_components/iron-selector/iron-selector.html">
+
+<link rel="import" href="my-user.html">
+
+
+<dom-module id="my-app">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      app-drawer-layout:not([narrow]) [drawer-toggle] {
+       display: none;
+     }
+     app-header {
+       background-color: lightblue;
+     }
+    </style>
+
+    <iron-ajax
+      id="getUserList"
+      auto
+      url="/api/getUser"
+      handle-as="json"
+      last-response="{{userResponse}}"></iron-ajax>
+
+    <app-drawer-layout fullbleed narrow={{narrow}}>
+      <app-drawer id="drawer" slot="drawer" swipe-open="[[narrow]]">
+        <app-toolbar>User List</app-toolbar>
+        <paper-listbox class="drawer-list" role="navigation" selected="{{selectedUserPos}}">
+          <dom-repeat items="{{userResponse.users}}" as="user">
+            <template>
+              <paper-item>[[user.name]]</paper-item>
+            </template>
+          </dom-repeat>
+        </paper-listbox>
+      </app-drawer>
+
+      <app-header-layout has-scrolling-region>
+        <app-header slot="header" condenses reveals effect="waterfall">
+          <app-toolbar>
+            <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
+            <div main-title>Task</div>
+
+            <paper-button raised on-tap="_logout">Logout</paper-button>
+            <iron-form allow-redirect id="logoutForm">
+              <form action="/logout" method="post">
+              </form>
+              </form>
+            </iron-form>
+          </app-toolbar>
+        </app-header>
+        <my-user user="[[selectedUser]]"></my-user>
+      </app-header-layout>
+
+    </app-drawer-layout>
+  </template>
+  <script>
+    class MyApp extends Polymer.Element {
+      static get is(){
+        return 'my-app'
+      }
+      static get properties(){
+        return {
+          userResponse: {
+            type: Object
+          },
+          selectedUser: {
+            type: Object,
+            value: {}
+          },
+          selectedUserPos: Number
+        }
+      }
+
+      static get observers() {
+        return [
+          '_changeItem(selectedUserPos)'
+        ]
+      }
+
+      _changeItem(selectedUserPos){
+        this.selectedUser = this.userResponse.users[selectedUserPos];
+        console.log(this.selectedUser);
+      }
+      _logout(){
+        this.$.logoutForm.submit();
+      }
+
+    }
+    customElements.define(MyApp.is, MyApp);
+  </script>
+</dom-module>

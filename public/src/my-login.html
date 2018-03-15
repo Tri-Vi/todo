@@ -1,0 +1,45 @@
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="/bower_components/app-layout/app-layout.html">
+<link rel="import" href="/bower_components/iron-form/iron-form.html">
+<link rel="import" href="/bower_components/paper-input/paper-input.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+
+
+<dom-module id="my-login">
+  <template>
+    <style>
+      :host {
+        display: block;
+        padding: 20px;
+      }
+      .login {
+        width: 500px;
+        height: 500px;
+        margin: 0 auto;
+      }
+    </style>
+    <div class="login">
+      <iron-form id="loginForm">
+        <form action="/login" method="post">
+          <paper-input label="Username" name="username" required autofocus></paper-input>
+          <paper-input label="Password" name="password" type="password" required autofocus></paper-input>
+          <div>
+            <paper-button raised type="submit" on-tap="_submit">Log In</paper-button>
+          </div>
+        </form>
+      </iron-form>
+    </div>
+  </template>
+  <script>
+    class MyLogin extends Polymer.Element {
+      static get is(){
+        return 'my-login';
+      }
+
+      _submit(){
+        this.$.loginForm.submit();
+      }
+    }
+    window.customElements.define(MyLogin.is, MyLogin);
+  </script>
+</dom-module>
