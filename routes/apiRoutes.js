@@ -1,11 +1,22 @@
-var express = require('express');
-var router = express.Router()
+const express = require('express');
+const router = express.Router()
+const mysql = require('mysql');
+const connection = require('../db/connection');
 
 var tasks = require('../db/tasks.js');
 var users = require('../db/users.js');
 
 router.get('/getUser', function(req, res){
-  res.json(users);
+  connection.connect(function(err) {
+    if (err) throw err;
+    console.log('connected');
+    connection.query("SELECT * FROM users", function (err, result, fields) {
+      if (err) throw err;
+      console.log(result);
+      res.json(result);
+      connection.end();
+    });
+  });
 });
 
 router.get('/getTask', function(req, res){

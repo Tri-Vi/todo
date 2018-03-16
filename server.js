@@ -5,12 +5,29 @@ const bodyParser = require('body-parser');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const port = process.env.PORT || 3000;
+const mysql = require('mysql');
 const app = express();
-
 
 //Routes
 const apiRoutes = require('./routes/apiRoutes.js');
 const routes =  require('./routes/index');
+
+//DB
+var connection = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: 'root',
+  database: 'todo'
+});
+
+connection.connect(function(err) {
+  if (err) throw err;
+  console.log('connected');
+  connection.query("SELECT * FROM users", function (err, result, fields) {
+    if (err) throw err;
+    console.log(result);
+  });
+});
 
 // passport
 passport.use(new LocalStrategy(
