@@ -12,6 +12,7 @@ router.post('/login', passport.authenticate('local', {failureRedirect: '/'}), fu
 });
 
 router.post('/logout', function(req,res){
+  console.log('logging out');
   delete req.user;
   req.logout();
   res.redirect('/');

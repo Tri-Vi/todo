@@ -9,6 +9,7 @@
 <link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="/bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="/bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="/bower_components/iron-form/iron-form.html">
 
 <link rel="import" href="my-user.html">
 
@@ -34,6 +35,11 @@
       handle-as="json"
       last-response="{{userResponse}}"></iron-ajax>
 
+    <iron-form allow-redirect id="logoutForm">
+      <form action="/logout" method="post">
+      </form>
+    </iron-form>
+
     <app-drawer-layout fullbleed narrow={{narrow}}>
       <app-drawer id="drawer" slot="drawer" swipe-open="[[narrow]]">
         <app-toolbar>User List</app-toolbar>
@@ -52,12 +58,10 @@
             <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
             <div main-title>Task</div>
 
-            <paper-button raised on-tap="_logout">Logout</paper-button>
-            <iron-form allow-redirect id="logoutForm">
-              <form action="/logout" method="post">
-              </form>
-              </form>
-            </iron-form>
+            <!--Log Out -->
+            <paper-button raised on-tap="_logout" style="background-color: orange;">Log out</paper-button>
+
+
           </app-toolbar>
         </app-header>
         <my-user user="[[selectedUser]]"></my-user>
@@ -93,7 +97,9 @@
         this.selectedUser = this.userResponse.users[selectedUserPos];
         console.log(this.selectedUser);
       }
+
       _logout(){
+
         this.$.logoutForm.submit();
       }
 
