@@ -2,9 +2,9 @@ const express = require('express');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const PropertiesReader = require('properties-reader');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
-const port = process.env.PORT || 3000;
 const mysql = require('mysql');
 const app = express();
 
@@ -12,22 +12,10 @@ const app = express();
 const apiRoutes = require('./routes/apiRoutes.js');
 const routes =  require('./routes/index');
 
-//DB
-var connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'root',
-  database: 'todo'
-});
+var properties = PropertiesReader('./local.properties');
 
-connection.connect(function(err) {
-  if (err) throw err;
-  console.log('connected');
-  connection.query("SELECT * FROM users", function (err, result, fields) {
-    if (err) throw err;
-    console.log(result);
-  });
-});
+//DB
+var connection = require('./db/connection.js');
 
 // passport
 passport.use(new LocalStrategy(
@@ -55,7 +43,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json())
 app.use(cookieParser());
 app.use(session({
-  secret: 'abcd1234',
+  secret: properties.get('session.secret'),
   resave: true,
   saveUninitialized: true
 }));
@@ -84,7 +72,7 @@ app.use('/', routes);
 //App Start
 
 
-app.listen(port, function(err){
+app.listen(properties.get('configuration.port'), function(err){
   if(err) throw err;
-  console.log(`Listening on ${port}`);
+  console.log("Listening on port: " +  properties.get('configuration.port'));
 });

@@ -3,66 +3,89 @@ const router = express.Router()
 const mysql = require('mysql');
 const connection = require('../db/connection');
 
-var tasks = require('../db/tasks.js');
-var users = require('../db/users.js');
+connection.connect(function(err){
+  if (err){
+    throw err;
+    connection.end();
+  }
+})
 
 router.get('/getUser', function(req, res){
-  connection.connect(function(err) {
-    if (err) throw err;
-    console.log('connected');
-    connection.query("SELECT * FROM users", function (err, result, fields) {
-      if (err) throw err;
-      console.log(result);
-      res.json(result);
+  connection.query("SELECT * FROM users", function (err, result, fields) {
+    if (err){
+      throw err;
       connection.end();
-    });
+    }
+    res.json(result);
   });
 });
 
 router.get('/getTask', function(req, res){
-  var query = parseInt(req.query.assignedUserId);
-  var filterTasks = tasks.tasks.filter(function(item){
-    return item.assignedUserId == query;
-  });
-  console.log(filterTasks);
-  res.json(filterTasks);
+  var assignedUserId = req.query.assignedUserId;
+  console.log(assignedUserId);
+  var sqlQuery = "SELECT * FROM tasks WHERE assignedUserId = " + mysql.escape(req.query.assignedUserId);
+  connection.query(sqlQuery, function(err, result, fields){
+    if(err){
+      throw err;
+      connection.end();
+    }
+    res.json(result);
+  })
 });
 
-router.post('/postTask', function(req, res){
-  // add new task to tasklist
-  tasks.tasks.push(req.body);
-  //filter tasks assigned to current user
-  var filterTasks = tasks.tasks.filter(function(task){
-    return task.assignedUserId == req.body.assignedUserId;
-  });
-  //send the json filter task list
-  res.json(filterTasks);
-})
+router.post('/postTask', function(req,res){
+  var sqlQuery = "INSERT INTO tasks(id, name, status, assignedUserId) VALUES ?";
+  var values = [[req.body.id, req.body.name, req.body.status, req.body.assignedUserId]];
+  connection.query(sqlQuery, [values], function(err, result){
+    if(err){
+      throw err;
+      connection.end();
+    }
+    sqlQuery = "SELECT * FROM tasks WHERE assignedUserId = " + req.body.assignedUserId;
+    connection.query(sqlQuery, function(err, result2){
+      if(err){
+        throw err;
+        connection.end();
+      }
+      res.json(result2);
+    })
+  })
+});
 
 router.post('/editTask', function(req, res){
-  var assignedUserId = req.body.assignedUserId;
-  var taskId = req.body.id;
-  var newStatus = req.body.status;
-  var index = tasks.tasks.findIndex(function(task){
-    return task.id == parseInt(taskId);
-  });
-  tasks.tasks[index].status = newStatus;
-  var filterTasks = tasks.tasks.filter(function(task){
-    return task.assignedUserId == req.body.assignedUserId;
-  });
-  res.json(filterTasks);
+  var sqlQuery = "UPDATE tasks SET status = ? WHERE id = ?";
+  connection.query(sqlQuery, [req.body.status, req.body.id], function(err, result){
+    if(err){
+      throw err;
+      connection.end();
+    }
+    sqlQuery = "SELECT * FROM tasks WHERE assignedUserId = ?";
+    connection.query(sqlQuery, [req.body.assignedUserId], function(err, result2){
+      if(err){
+        throw err;
+        connection.end();
+      }
+      res.json(result2);
+    })
+  })
 });
 
 router.post('/removeTask', function(req, res){
-  var index = tasks.tasks.findIndex(function(task){
-    return task.id == parseInt(req.body.id);
-  });
-  tasks.tasks.splice(index, 1);
-  var filterTasks = tasks.tasks.filter(function(task){
-    return task.assignedUserId == req.body.assignedUserId;
-  });
-  res.json(filterTasks);
-});
-
+  var sqlQuery = "DELETE FROM tasks WHERE id = ?";
+  connection.query(sqlQuery, [req.body.id], function(err, result){
+    if(err){
+      throw err;
+      connection.end();
+    }
+      sqlQuery = "SELECT * FROM tasks WHERE assignedUserId = ?";
+      connection.query(sqlQuery, [req.body.assignedUserId], function(err, result2){
+        if(err) {
+          throw err;
+          connection.end();
+        }
+        res.json(result2);
+      })
+  })
+})
 
 module.exports = router;

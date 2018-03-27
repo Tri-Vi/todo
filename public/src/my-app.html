@@ -44,7 +44,7 @@
       <app-drawer id="drawer" slot="drawer" swipe-open="[[narrow]]">
         <app-toolbar>User List</app-toolbar>
         <paper-listbox class="drawer-list" role="navigation" selected="{{selectedUserPos}}">
-          <dom-repeat items="{{userResponse.users}}" as="user">
+          <dom-repeat items="{{userResponse}}" as="user">
             <template>
               <paper-item>[[user.name]]</paper-item>
             </template>
@@ -77,7 +77,7 @@
       static get properties(){
         return {
           userResponse: {
-            type: Object
+            type: Array
           },
           selectedUser: {
             type: Object,
@@ -94,7 +94,7 @@
       }
 
       _changeItem(selectedUserPos){
-        this.selectedUser = this.userResponse.users[selectedUserPos];
+        this.selectedUser = this.userResponse[selectedUserPos];
         console.log(this.selectedUser);
       }
 

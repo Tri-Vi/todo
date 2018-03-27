@@ -6,8 +6,6 @@ router.post('/login', passport.authenticate('local', {failureRedirect: '/'}), fu
   req.user.role = [];
   next();
 }, function(req, res){
-  console.log('post login');
-  console.log(req.body);
   res.redirect('/');
 });
 
