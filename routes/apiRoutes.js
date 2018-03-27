@@ -22,7 +22,6 @@ router.get('/getUser', function(req, res){
 
 router.get('/getTask', function(req, res){
   var assignedUserId = req.query.assignedUserId;
-  console.log(assignedUserId);
   var sqlQuery = "SELECT * FROM tasks WHERE assignedUserId = " + mysql.escape(req.query.assignedUserId);
   connection.query(sqlQuery, function(err, result, fields){
     if(err){

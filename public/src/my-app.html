@@ -38,7 +38,7 @@
      paper-progress {
        display: block;
        width: 100%;
-       margin-top: -12px;
+     }
 
      paper-progress {
        --paper-progress-active-color:  var(--paper-light-blue-500);
@@ -81,10 +81,11 @@
 
           </app-toolbar>
         </app-header>
+        <paper-progress id="loadingProgress" bottom-item class="blue"></paper-progress>
+
         <my-user user="[[selectedUser]]"></my-user>
       </app-header-layout>
 
-      <paper-progress id="loadingProgress" bottom-item class="blue"></paper-progress>
     </app-drawer-layout>
 
     <paper-toast
@@ -130,7 +131,6 @@
       }
 
       _onError(event){
-        //paper-Progress
         this.$.loadingProgress.indeterminate = false;
         this.errorMessage = event.detail.error.message;
         this.$.errorToast.open();
@@ -141,7 +141,7 @@
       }
 
       _onAjaxResponse(event){
-        this.$.loadingProgres.indeterminate = false;
+        this.$.loadingProgress.indeterminate = false;
       }
 
       _closeToast(){
