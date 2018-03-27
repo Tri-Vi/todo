@@ -30,6 +30,9 @@
     "neon-animation": "PolymerElements/neon-animation#^2.2.1",
     "iron-icon": "PolymerElements/iron-icon#^2.1.0",
     "iron-flex-layout": "PolymerElements/iron-flex-layout#^2.0.3",
-    "iron-form": "PolymerElements/iron-form#^2.2.1"
+    "iron-form": "PolymerElements/iron-form#^2.2.1",
+    "paper-toast": "PolymerElements/paper-toast#^2.1.0",
+    "paper-progress": "PolymerElements/paper-progress#^2.1.0",
+    "iron-media-query": "PolymerElements/iron-media-query#^2.1.0"
   }
 }

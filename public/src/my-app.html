@@ -2,14 +2,20 @@
 <link rel="import" href="/bower_components/app-layout/app-layout.html">
 <link rel="import" href="/bower_components/app-route/app-route.html">
 <link rel="import" href="/bower_components/app-route/app-location.html">
+
 <link rel="import" href="/bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="/bower_components/paper-item/paper-item.html">
 <link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="/bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="/bower_components/paper-progress/paper-progress.html">
+
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="/bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="/bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="/bower_components/iron-form/iron-form.html">
+<link rel="import" href="/bower_components/iron-media-query/iron-media-query.html">
+
 
 <link rel="import" href="my-user.html">
 
@@ -25,6 +31,17 @@
      }
      app-header {
        background-color: lightblue;
+     }
+     paper-button.yellowButton {
+       color: yellow;
+     }
+     paper-progress {
+       display: block;
+       width: 100%;
+       margin-top: -12px;
+
+     paper-progress {
+       --paper-progress-active-color:  var(--paper-light-blue-500);
      }
     </style>
 
@@ -67,7 +84,18 @@
         <my-user user="[[selectedUser]]"></my-user>
       </app-header-layout>
 
+      <paper-progress id="loadingProgress" bottom-item class="blue"></paper-progress>
     </app-drawer-layout>
+
+    <paper-toast
+      id="errorToast"
+      duration="0"
+      text="[[errorMessage]]"
+      vertical-align="top"
+      vertical-offset="100"
+      horizontal-align="center">
+      <paper-button on-tap="_closeToast" class="yellowButton">Close</paper-button>
+    </paper-toast>
   </template>
   <script>
     class MyApp extends Polymer.Element {
@@ -83,7 +111,8 @@
             type: Object,
             value: {}
           },
-          selectedUserPos: Number
+          selectedUserPos: Number,
+          errorMessage : String
         }
       }
 
@@ -93,13 +122,38 @@
         ]
       }
 
+      ready(){
+        super.ready();
+        this.addEventListener('error', this._onError);
+        this.addEventListener('iron-ajax-presend', this._onAjaxPresend);
+        this.addEventListener('iron-ajax-response', this._onAjaxResponse);
+      }
+
+      _onError(event){
+        //paper-Progress
+        this.$.loadingProgress.indeterminate = false;
+        this.errorMessage = event.detail.error.message;
+        this.$.errorToast.open();
+      }
+
+      _onAjaxPresend(event){
+        this.$.loadingProgress.indeterminate = true;
+      }
+
+      _onAjaxResponse(event){
+        this.$.loadingProgres.indeterminate = false;
+      }
+
+      _closeToast(){
+        this.$.errorToast.close();
+      }
+
       _changeItem(selectedUserPos){
         this.selectedUser = this.userResponse[selectedUserPos];
         console.log(this.selectedUser);
       }
 
       _logout(){
-
         this.$.logoutForm.submit();
       }
 
