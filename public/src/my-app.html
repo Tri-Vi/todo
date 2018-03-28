@@ -49,8 +49,9 @@
       id="getUserList"
       auto
       url="/api/getUser"
-      handle-as="json"
-      last-response="{{userResponse}}"></iron-ajax>
+      last-response="{{userResponse}}"
+      bubbles>
+    </iron-ajax>
 
     <iron-form allow-redirect id="logoutForm">
       <form action="/logout" method="post">
@@ -82,8 +83,10 @@
           </app-toolbar>
         </app-header>
         <paper-progress id="loadingProgress" bottom-item class="blue"></paper-progress>
-
+        
         <my-user user="[[selectedUser]]"></my-user>
+
+
       </app-header-layout>
 
     </app-drawer-layout>

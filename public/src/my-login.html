@@ -21,8 +21,8 @@
     <div class="login">
       <iron-form allow-redirect id="loginForm">
         <form action="/login" method="post">
-          <paper-input label="Username" name="username" required autofocus></paper-input>
-          <paper-input label="Password" name="password" type="password" required autofocus></paper-input>
+          <paper-input label="Username" name="username" required autofocus on-keyup="_postform"></paper-input>
+          <paper-input label="Password" name="password" type="password" required autofocus on-keyup="_postform"></paper-input>
           <div>
             <paper-button raised type="submit" on-tap="_submit">Log In</paper-button>
           </div>
@@ -38,6 +38,13 @@
 
       _submit(){
         this.$.loginForm.submit();
+      }
+
+      _postform(e){
+        var enter = 13;
+        if(e.keyCode === enter){
+          this._submit(e);
+        }
       }
     }
     window.customElements.define(MyLogin.is, MyLogin);

@@ -1,0 +1,257 @@
+<link rel="import" href="/bower_components/polymer/polymer-element.html">
+<link rel="import" href="/bower_components/paper-datatable-api/paper-datatable-api-column.html">
+<link rel="import" href="/bower_components/paper-datatable-api/paper-datatable-api.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
+
+
+<dom-module id="my-todo-table">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      paper-button.red {
+        background-color:red;
+        width: 120px;
+        margin-top:5px;
+      }
+
+      paper-button.orange {
+        background-color: orange;
+        width: 120px;
+        margin-top:5px;
+      }
+    </style>
+
+    <iron-ajax
+      id="editTask"
+      url="/api/editTask"
+      method="POST"
+      content-type="application/json"
+      body="{{body}}"
+      last-response="{{data}}"
+      bubbles></iron-ajax>
+
+    <iron-ajax
+      id="removeTask"
+      url="/api/removeTask"
+      method="POST"
+      content-type="application/json"
+      body="{{body}}"
+      handle-as="json"
+      last-response="{{data}}"
+      bubbles></iron-ajax>
+
+    <paper-datatable-api
+      paginate
+      data="[[data]]"
+      size="{{size}}"
+      page="{{page}}"
+      on-sort="_handleSort"
+      on-filter="_handleFilter"
+      total-pages="[[totalPages]]"
+      available-size="[10, 25, 50, 100]"
+      total-elements="[[totalelements]]">
+
+      <paper-datatable-api-column
+        sortable
+        filter
+        header="Task ID"
+        property="id"
+        default-value="[[params.id]]">
+        <template>
+          <span>{{value}}</span>
+        </template>
+      </paper-datatable-api-column>
+
+      <paper-datatable-api-column
+        sortable
+        filter
+        header="Task Name"
+        property="name"
+        default-value="[[params.name]]">
+        <template>
+          <span>{{value}}</span>
+        </template>
+      </paper-datatable-api-column>
+
+      <paper-datatable-api-column
+        sortable
+        filter
+        header="Task Status"
+        property="status"
+        default-value="[[params.status]]">
+        <template>
+          <span>{{value}}</span>
+        </template>
+      </paper-datatable-api-column>
+
+      <paper-datatable-api-column
+        header="Edit"
+        property=""
+        other-properties='["id"]'>
+        <template>
+          <paper-button raised on-tap="_openEditTaskModal" data-truth$=[[otherValues.id]] class="orange">Update Status</paper-button>
+          <paper-button raised on-tap="_removeTask" data-truth$=[[otherValues.id]] class="red">Remove Task</paper-button>
+        </template>
+      </paper-datatable-api-column>
+    </paper-datatable-api>
+
+    <paper-dialog id="editTaskModal">
+      <h2>Edit Task Form</h2>
+      <paper-input type="number" label="Task Id" value="{{taskId}}"></paper-input>
+      <paper-dropdown-menu label="Task Status">
+        <paper-listbox class="dropdown-content" slot="dropdown-content" attr-for-selected="value" selected="{{taskStatus}}">
+          <paper-item value="Pending">Pending</paper-item>
+          <paper-item value="In Progress">In Progress</paper-item>
+          <paper-item value="Completed">Completed</paper-item>
+        </paper-listbox>
+      </paper-dropdown-menu>
+      <div class="buttons">
+        <paper-button raised on-tap="_editTask">Edit</paper-button>
+        <paper-button raised on-tap="_closeEditTaskModal">Close</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="removeTaskModal">
+      <h2>Edit Task Modal</h2>
+      <paper-input type="number" label="Task ID" value="{{taskId}}" no-label-float></paper-input>
+      <div class="buttons">
+        <paper-button raised on-tap="_removeTask" class="red">Remove Task</paper-button>
+        <paper-button raised on-tap="_closeRemoveTaskModal">Close</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
+  <script>
+    class MyTodoTable extends Polymer.Element {
+      static get is(){
+        return 'my-todo-table'
+      }
+      static get properties(){
+        return {
+          data: {
+            type: Array
+          },
+          sortcolumn: {
+            type: String,
+            notify: true
+          },
+          sortdirection: {
+            type: String,
+            notify: true
+          },
+          size: {
+            type: Number,
+            notify: true,
+          },
+          page: {
+            type: Number,
+            notify: true
+          },
+          start: {
+            type: Number,
+            notify: true
+          },
+          totalPages: {
+            type: Number,
+            notify: true,
+          },
+          totalelements: {
+            type: Number,
+            notify: true
+          },
+          body: {
+            type: Object,
+            computed: '_createBody(user, taskId, taskStatus)'
+          },
+          taskStatus: {
+            type: String,
+          },
+          taskName: {
+            type: String,
+          },
+          taskId: {
+            type: Number
+          },
+          user: {
+            type: Object
+          }
+        }
+      }
+
+      static get observers(){
+        return [
+          '_computeCurrentStart(page,size)',
+          '_computeTotalPage(totalelements,size)'
+        ]
+      }
+
+      _createBody(user, taskId, taskStatus){
+        return {
+          id: parseInt(taskId),
+          status: taskStatus,
+          assignedUserId: user.id
+        }
+      }
+
+      _computeCurrentStart(page, size){
+        this.start = (page * size);
+      }
+
+      _computeCurrentStart(totalelements,size){
+        this.start = 0;
+        this.page = 0;
+        if(size > totalelements){
+          this.totalPages = 1;
+          return;
+        }
+        this.totalPages = (totalelements / size);
+      }
+
+      _handleFilter(event){
+        this.set('params.' + event.detail.filter.property, event.detail.filter.value);
+      }
+
+      _handleSort(event){
+        if(event.detail.sort.hasOwnProperty('property')){
+          this.sortcolumn = event.detail.sort.property;
+          this.sortdirection = event.detail.sort.direction.toUpperCase();
+        }
+      }
+
+      _openEditTaskModal(e){
+        this.taskId = e.target.dataset.truth;
+        this.taskStatus = "";
+        this.$.editTaskModal.open();
+      }
+
+      _closeEditTaskModal(){
+        this.$.editTaskModal.close();
+      }
+
+      _editTask(){
+        this.$.editTask.generateRequest();
+        this.$.editTaskModal.close();
+      }
+
+      _openRemoveTaskModal(){
+        this.taskId = "";
+        this.$.removeTaskModal.open();
+      }
+
+      _closeRemoveTaskModal(){
+        this.$.removeTaskModal.close();
+      }
+
+      _removeTask(e){
+        this.taskId = e.target.dataset.truth;
+        this.$.removeTask.generateRequest();
+      }
+    }
+    customElements.define(MyTodoTable.is, MyTodoTable);
+  </script>
+
+</dom-module>
