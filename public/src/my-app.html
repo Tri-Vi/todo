@@ -45,6 +45,15 @@
      }
     </style>
 
+    <app-location route="{{route}}"></app-location>
+
+    <app-route
+      route="{{route}}"
+      pattern="/:page"
+      data="{{routeData}}"
+      tail="{{tail}}">
+    </app-route>
+
     <iron-ajax
       id="getUserList"
       auto
@@ -83,7 +92,7 @@
           </app-toolbar>
         </app-header>
         <paper-progress id="loadingProgress" bottom-item class="blue"></paper-progress>
-        
+
         <my-user user="[[selectedUser]]"></my-user>
 
 
@@ -101,6 +110,7 @@
       <paper-button on-tap="_closeToast" class="yellowButton">Close</paper-button>
     </paper-toast>
   </template>
+
   <script>
     class MyApp extends Polymer.Element {
       static get is(){
@@ -153,7 +163,6 @@
 
       _changeItem(selectedUserPos){
         this.selectedUser = this.userResponse[selectedUserPos];
-        console.log(this.selectedUser);
       }
 
       _logout(){

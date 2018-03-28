@@ -44,14 +44,14 @@
       }
 
     </style>
-    <!-- <app-location route="{{route}}"></app-location>
+    <app-location route="{{route}}"></app-location>
     <app-route
       route="{{route}}"
       pattern="/:page"
-      data="{{data}}"
+      data="{{routeData}}"
       tail="{{tail}}"
-      query-params="{{param}}">
-    </app-route> -->
+      query-params="{{uqp}}">
+    </app-route>
 
     <iron-ajax
       id="getTask"
@@ -72,7 +72,7 @@
       bubbles>
     </iron-ajax>
 
-    <div class="userInfo">
+    <div class="userInfo" hidden="[[!queryParams.assignedUserId]]">
 
       <my-todo-table
         data="{{taskReponse}}"
@@ -141,14 +141,10 @@
           queryParams: {
             type: Object,
             notify: true,
-            value: function(user){
-              return {
-                'start': 0,
-                'size': 10,
-                'sortColumn': 'requisition_id',
-                'sortDirection': 'ASC',
-              }
-            }
+            computed: '_createQueryParam(user)'
+          },
+          uqp: {
+            type: Object
           }
         }
       }
@@ -174,10 +170,15 @@
 
       _createQueryParam(user){
         return {
-          assignedUserId: user.id,
+          start: 0,
+          size: 10,
+          sortColumn: 'id',
+          sortDirection: 'ASC',
+          assignedUserId: user.id
 
         }
       }
+
 
       _createPostBody(user, taskId, taskName, taskStatus){
         return {
